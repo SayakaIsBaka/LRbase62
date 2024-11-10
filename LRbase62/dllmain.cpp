@@ -8,7 +8,9 @@
 #include <sstream>
 #include <vector>
 
+#ifdef _DEBUG
 #define DEBUG_CONSOLE_ENABLED
+#endif
 
 typedef int(__cdecl* LoadBms)(char* gp, char* filename, char* aud, char* g, char* meta, int bgaFlag, int scratchSide);
 LoadBms oLoadBms;
@@ -21,13 +23,20 @@ struct Patch {
 };
 
 const std::vector<Patch> patches = {
-    { 0x4B0828, 5, "\xB9\x10\x05\x00\x00", "\xB9\x04\x0F\x00\x00" },
-    { 0x4B21F5, 6, "\x81\xFE\x0F\x05\x00\x00", "\x81\xFE\x03\x0F\x00\x00" },
-    { 0x4B2346, 6, "\x81\xFE\x0F\x05\x00\x00", "\x81\xFE\x03\x0F\x00\x00" },
+    { 0x4B0828, 5, "\xB9\x10\x05\x00\x00", "\xB9\x04\x0F\x00\x00" }, // clear keysounds
+    { 0x4B21F5, 6, "\x81\xFE\x0F\x05\x00\x00", "\x81\xFE\x03\x0F\x00\x00" }, // extend wav limit from 1295 to 3843 (1)
+    { 0x4B2346, 6, "\x81\xFE\x0F\x05\x00\x00", "\x81\xFE\x03\x0F\x00\x00" }, // extend wav limit from 1295 to 3843 (2)
     { 0x4B0F28, 5, "\xE8\xA3\xA2\xF8\xFF", "\x90\x90\x90\x90\x90" }, // disable to upper
+    { 0x4B248E, 6, "\x81\xFE\x0F\x05\x00\x00", "\x81\xFE\x03\x0F\x00\x00" }, // extend bmp limit from 1295 to 3843
 };
 const std::vector<uintptr_t> base36patches = {
-    0x4B1891, 0x4B197C, 0x4B1A7C, 0x4B21E5, 0x4B233C, 0x4B1DAC
+    0x4B1891, // First call during channel parsing
+    0x4B197C, // Second call during channel parsing
+    0x4B1A7C, // Third call during channel parsing (unknown if actually needed)
+    0x4B21E5, // First call during #WAV parsing
+    0x4B233C, // Second call during #WAV parsing
+    0x4B1DAC, // Call during #LNOBJ parsing
+    0x4B2484, // Call during #BMP parsing
 };
 
 const DWORD Base36ToDec = 0x439dc0;
