@@ -6,7 +6,7 @@ A base-62 comptability mod for LR2.
 
 ## Usage
 
-LRbase62 is provided as a DLL to inject into LR2. [lr2_chainloader](https://github.com/SayakaIsBaka/lr2_chainload) is recommended as it allows to automatically load LRbase62 during startup without using any extra binaries.
+LRbase62 is provided as a DLL to inject into LR2. [lr2_chainload](https://github.com/SayakaIsBaka/lr2_chainload) is recommended as it allows to automatically load LRbase62 during startup without using any extra binaries.
 To use LRbase62 with lr2_chainload, follow the steps below:
 - Download the latest release of lr2_chainload [here](https://github.com/SayakaIsBaka/lr2_chainload/releases)
 - Extract the contents of the archive in LR2's folder
