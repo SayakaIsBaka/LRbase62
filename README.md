@@ -12,7 +12,16 @@ To use LRbase62 with lr2_chainload, follow the steps below:
 - Extract the contents of the archive in LR2's folder
 - Download the latest release of LRbase62 [here](https://github.com/SayakaIsBaka/LRbase62/releases)
 - Put the DLL file somewhere on your system (it doesn't have to be in LR2's folder)
-- Edit `chainload.txt` in LR2's folder and add a line with the path to LRbase62's DLL
+- Edit `chainload.txt` in LR2's folder and add a line with the path to LRbase62's DLL. For example, if placing the `LRbase62.dll` file into LR2's folder, the `chainload.txt` file would be similar to the following:
+```
+#
+# lr2_chainload
+# https://github.com/SayakaIsBaka/lr2_chainload
+#
+# This file is read during startup to automatically load additional libraries.
+# Each line should contain either a relative or full path to a library file.
+LRbase62.dll
+```
 - Run the game. Base-62 charts should now play properly.
 
 You may also use LRbase62 by injecting the DLL into LR2's process with your favorite DLL injector.
