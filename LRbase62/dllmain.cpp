@@ -15,6 +15,9 @@
 typedef int(__cdecl* LoadBms)(char* gp, char* filename, char* aud, char* g, char* meta, int bgaFlag, int scratchSide);
 LoadBms oLoadBms;
 
+typedef char* (__cdecl* StrUpr)(char* str);
+StrUpr oStrUpr = (StrUpr)0x7175A8;
+
 struct Patch {
     uintptr_t address;
     size_t len;
@@ -26,7 +29,7 @@ const std::vector<Patch> patches = {
     { 0x4B0828, 5, "\xB9\x10\x05\x00\x00", "\xB9\x04\x0F\x00\x00" }, // clear keysounds
     { 0x4B21F5, 6, "\x81\xFE\x0F\x05\x00\x00", "\x81\xFE\x03\x0F\x00\x00" }, // extend wav limit from 1295 to 3843 (1)
     { 0x4B2346, 6, "\x81\xFE\x0F\x05\x00\x00", "\x81\xFE\x03\x0F\x00\x00" }, // extend wav limit from 1295 to 3843 (2)
-    { 0x4B0F28, 5, "\xE8\xA3\xA2\xF8\xFF", "\x90\x90\x90\x90\x90" }, // disable to upper
+    //{ 0x4B0F28, 5, "\xE8\xA3\xA2\xF8\xFF", "\x90\x90\x90\x90\x90" }, // disable to upper
     { 0x4B248E, 6, "\x81\xFE\x0F\x05\x00\x00", "\x81\xFE\x03\x0F\x00\x00" }, // extend bmp limit from 1295 to 3843
 };
 const std::vector<uintptr_t> base36patches = {
@@ -40,6 +43,7 @@ const std::vector<uintptr_t> base36patches = {
 };
 
 const DWORD Base36ToDec = 0x439dc0;
+const DWORD ToUpper = 0x43B1D0;
 
 int __cdecl Base62ToDec(char ch1, char ch2) {
     const std::string digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -92,6 +96,41 @@ bool isBase62BMS(const char* filename) {
     return false;
 }
 
+bool isDigits(std::string str)
+{
+    return std::all_of(str.begin(), str.end(), ::isdigit);
+}
+
+char* __cdecl hkToUpper(char* str) {
+    std::string s(str); // Copy string
+    oStrUpr(&s[0]); // to upper to parse potentially weird commands
+    if (s.rfind("#WAV", 0) == 0 || s.rfind("#BMP", 0) == 0) {
+        memcpy(str, s.c_str(), 4); // Copy first 4 chars of line to parse properly afterwards
+        return str;
+    }
+    else if (isDigits(s.substr(1, 5))) // If channel command
+        return str;
+    return oStrUpr(str);
+}
+
+// Basically a copy of 0x43B1D0 (except we call our own strupr implem)
+__declspec(naked) char** trampToUpper() {
+    __asm {
+        push esi
+        mov esi, ecx
+        mov eax, [esi]
+        test eax, eax
+        jz end
+        push eax
+        call hkToUpper
+        add esp, 4
+     end:
+        mov eax, esi
+        pop esi
+        retn
+    }
+}
+
 void ApplyPatches(bool restore) {
     if (restore) {
         for (const Patch p : patches) {
@@ -100,6 +139,7 @@ void ApplyPatches(bool restore) {
         for (const auto a : base36patches) {
             mem::HookFn((char*)a, (char*)Base36ToDec, 5);
         }
+        mem::HookFn((char*)0x4B0F28, (char*)ToUpper, 5);
     }
     else {
         for (const Patch p : patches) {
@@ -108,6 +148,7 @@ void ApplyPatches(bool restore) {
         for (const auto a : base36patches) {
             mem::HookFn((char*)a, (char*)Base62ToDec, 5);
         }
+        mem::HookFn((char*)0x4B0F28, (char*)trampToUpper, 5);
     }
 }
 
