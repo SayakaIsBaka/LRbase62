@@ -1,6 +1,6 @@
 # LRbase62
 
-A base-62 comptability mod for LR2.
+A base-62 compatibility mod for LR2.
 > [!WARNING]
 > This is an experimental mod; use this at your own risk. Please report any bugs you might encounter!
 
