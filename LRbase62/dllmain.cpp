@@ -154,9 +154,11 @@ void ApplyPatches(bool restore) {
 
 int __cdecl hkLoadBms(char* gp, char* filename, char* aud, char* g, char* meta, int bgaFlag, int scratchSide) {
     int numStages = gp[0x7C078];
+    int isPreview = gp[0x7C228];
     std::cout << "[+] Selected file: " << filename << std::endl;
     std::cout << "[+] Number of stages: " << std::to_string(numStages) << std::endl;
-    if (numStages == 1 && isBase62BMS(filename)) {
+    std::cout << "[+] Is preview: " << std::to_string(isPreview) << std::endl;
+    if ((numStages == 1 || isPreview == 1) && isBase62BMS(filename)) {
         std::cout << "[+] File is base62!" << std::endl;
         ApplyPatches(false);
     }
